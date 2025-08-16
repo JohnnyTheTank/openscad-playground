@@ -24,13 +24,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node.version }}
-      - run: npm install
-      - run: npm run build:all
+      - run: yarn install
+      - run: yarn build:all
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dist-node-${{ matrix.node.name }}
           path: dist
           retention-days: 30
-      - run: NODE_ENV=development npm run test:e2e
-      - run: NODE_ENV=production  npm run test:e2e
+      - run: NODE_ENV=development yarn test:e2e
+      - run: NODE_ENV=production  yarn test:e2e
