@@ -53,7 +53,7 @@ The project uses a **webpack-based build system** that reads library metadata fr
 Prerequisites:
 *   wget or curl
 *   Node.js (>=18.12.0)
-*   npm
+*   yarn
 *   git
 *   zip
 *   Docker able to run amd64 containers (only needed if building WASM from source). If running on a different platform (including Silicon Mac), you can add support for amd64 images through QEMU with:
@@ -65,26 +65,26 @@ Prerequisites:
 Local dev:
 
 ```bash
-npm run build:libs  # Download WASM and build all OpenSCAD libraries
-npm install
-npm run start
+yarn build:libs  # Download WASM and build all OpenSCAD libraries
+yarn install
+yarn start
 # http://localhost:4000/
 ```
 
 Local prod (test both the different inlining and serving under a prefix):
 
 ```bash
-npm run build:libs  # Download WASM and build all OpenSCAD libraries
-npm install
-npm run start:production
+yarn build:libs  # Download WASM and build all OpenSCAD libraries
+yarn install
+yarn start:production
 # http://localhost:3000/dist/
 ```
 
 Deployment (edit "homepage" in `package.json` to match your deployment root!):
 
 ```bash
-npm run build:all  # Build libraries and compile the application
-npm install
+yarn build:all  # Build libraries and compile the application
+yarn install
 
 rm -fR ../ochafik.github.io/openscad2 && cp -R dist ../ochafik.github.io/openscad2 
 # Now commit and push changes, wait for site update and enjoy!
@@ -107,14 +107,14 @@ The build system fetches a prebuilt OpenSCAD web WASM binary, but you can build 
 - Build WASM binary (add `WASM_BUILD=Debug` argument if you'd like to debug any cryptic crashes):
 
   ```bash
-  npm run build:libs:wasm
+  yarn build:libs:wasm
   ```
 
 - Then continue the build:
 
   ```bash
-  npm run build:libs
-  npm run start
+  yarn build:libs
+  yarn start
   ```
 
 ## Adding OpenSCAD libraries
@@ -143,9 +143,9 @@ In `libs-config.json`, add an entry like this:
 ```
 
 Available build commands:
-- `npm run build:libs` - Build all libraries
-- `npm run build:libs:clean` - Clean all build artifacts
-- `npm run build:libs:wasm` - Download/build just the WASM binary
-- `npm run build:libs:fonts` - Download/build just the fonts
+- `yarn build:libs` - Build all libraries
+- `yarn build:libs:clean` - Clean all build artifacts
+- `yarn build:libs:wasm` - Download/build just the WASM binary
+- `yarn build:libs:fonts` - Download/build just the fonts
 
 Send us a PR, then once it's merged request an update to the hosted https://ochafik.com/openscad2 demo.

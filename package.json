@@ -29,15 +29,15 @@
   "scripts": {
     "test:e2e": "jest",
     "start:development": "npx webpack serve --mode=development",
-    "start:production": "NODE_ENV=production PUBLIC_URL=http://localhost:3000/dist/ npm run build && npx serve",
-    "start:test": "npm run start:development",
-    "start": "npm run start:development",
+    "start:production": "NODE_ENV=production PUBLIC_URL=http://localhost:3000/dist/ yarn build && npx serve",
+    "start:test": "yarn start:development",
+    "start": "yarn start:development",
     "build": "NODE_ENV=production webpack --mode=production",
     "build:libs": "LIBS_BUILD_MODE=all webpack --config webpack.libs.config.js",
     "build:libs:clean": "LIBS_BUILD_MODE=clean webpack --config webpack.libs.config.js",
     "build:libs:wasm": "LIBS_BUILD_MODE=wasm webpack --config webpack.libs.config.js",
     "build:libs:fonts": "LIBS_BUILD_MODE=fonts webpack --config webpack.libs.config.js",
-    "build:all": "npm run build:libs && npm run build"
+    "build:all": "yarn build:libs && yarn build"
   },
   "eslintConfig": {
     "extends": [
