@@ -17,10 +17,10 @@ import chroma from "chroma-js";
 const githubRx = /^https:\/\/github.com\/([^/]+)\/([^/]+)\/blob\/(.+)$/;
 
 export class Model {
-  constructor(private fs: FS, public state: State, private setStateCallback?: (state: State) => void, 
+  constructor(private fs: FS, public state: State, private setStateCallback?: (state: State) => void,
     private statePersister?: StatePersister) {
   }
-  
+
   init() {
     if (!this.state.output && !this.state.lastCheckerRun && !this.state.previewing && !this.state.checkingSyntax && !this.state.rendering) {
       this.processSource();
@@ -46,16 +46,16 @@ export class Model {
   }
 
   setFormats(
-      exportFormat2D: keyof typeof VALID_EXPORT_FORMATS_2D | undefined,
-      exportFormat3D: keyof typeof VALID_EXPORT_FORMATS_3D | undefined) {
+    exportFormat2D: keyof typeof VALID_EXPORT_FORMATS_2D | undefined,
+    exportFormat3D: keyof typeof VALID_EXPORT_FORMATS_3D | undefined) {
     this.mutate(s => {
       if (exportFormat2D != null) s.params.exportFormat2D = exportFormat2D;
       if (exportFormat3D != null) s.params.exportFormat3D = exportFormat3D;
     });
   }
   setVar(name: string, value: any) {
-    this.mutate(s => s.params.vars = {...s.params.vars ?? {}, [name]: value});
-    this.render({isPreview: true, now: false});
+    this.mutate(s => s.params.vars = { ...s.params.vars ?? {}, [name]: value });
+    this.render({ isPreview: true, now: false });
   }
 
   set logsVisible(value: boolean) {
@@ -63,7 +63,7 @@ export class Model {
       if (this.state.view.layout.mode === 'single') {
         this.changeSingleVisibility('editor');
       } else {
-        this.changeMultiVisibility('editor', true);  
+        this.changeMultiVisibility('editor', true);
       }
     }
     this.mutate(s => s.view.logs = value);
@@ -137,7 +137,7 @@ export class Model {
         s.params.activePath = path;
         if (!s.params.sources.find(src => src.path === path)) {
           const content = readSource(path);
-          s.params.sources = [...s.params.sources, {path, content}];
+          s.params.sources = [...s.params.sources, { path, content }];
         }
         s.lastCheckerRun = undefined;
         s.output = undefined;
@@ -157,7 +157,7 @@ export class Model {
     return this.state.params.sources.find(src => src.path === this.state.params.activePath)?.content ?? '';
   }
   set source(source: string) {
-    if (this.mutate(s => s.params.sources = s.params.sources.map(src => src.path === s.params.activePath ? {path: src.path, content: source} : src))) {
+    if (this.mutate(s => s.params.sources = s.params.sources.map(src => src.path === s.params.activePath ? { path: src.path, content: source } : src))) {
       this.processSource();
     }
   }
@@ -165,22 +165,22 @@ export class Model {
   private async processSource() {
     let src = this.state.params.sources.find(src => src.path === this.state.params.activePath);
     if (src && src.content == null) {
-      let {path, url} = src;
+      let { path, url } = src;
       // Transform https://github.com/tenstad/keyboard/blob/main/keyboard.scad to https://raw.githubusercontent.com/tenstad/keyboard/refs/heads/main/keyboard.scad
       let match;
       if (url && (match = url.match(githubRx))) {
         url = `https://raw.githubusercontent.com/${match[1]}/${match[2]}/refs/heads/${match[3]}`;
       }
-      const content = new TextDecoder().decode(await fetchSource(this.fs, {path, url}));
+      const content = new TextDecoder().decode(await fetchSource(this.fs, { path, url }));
       this.mutate(s => {
-        s.params.sources = s.params.sources.map(src => src.path === s.params.activePath ? {...src, content} : src);
+        s.params.sources = s.params.sources.map(src => src.path === s.params.activePath ? { ...src, content } : src);
       });
     }
     if (this.source.trim() !== '') {
       if (this.state.params.activePath.endsWith('.scad')) {
         this.checkSyntax();
       }
-      this.render({isPreview: true, now: false});
+      this.render({ isPreview: true, now: false });
     }
   }
 
@@ -190,7 +190,7 @@ export class Model {
       const checkerRun = await checkSyntax({
         activePath: this.state.params.activePath,
         sources: this.state.params.sources,
-      })({now: false});
+      })({ now: false });
       this.mutate(s => {
         s.lastCheckerRun = checkerRun;
         s.parameterSet = checkerRun?.parameterSet;
@@ -213,7 +213,7 @@ export class Model {
 
   async export() {
     if (this.state.output) {
-      const normalPassThrough = 
+      const normalPassThrough =
         (this.state.is2D && this.state.params.exportFormat2D === 'svg')
         || (!this.state.is2D && this.state.params.exportFormat3D === 'off');
 
@@ -245,7 +245,7 @@ export class Model {
       throw new Error('No output file to export');
     }
 
-    const {features, exportFormat2D, exportFormat3D} = this.state.params;
+    const { features, exportFormat2D, exportFormat3D } = this.state.params;
     const exportFormat = this.state.is2D ? exportFormat2D : exportFormat3D;
 
     try {
@@ -279,9 +279,9 @@ export class Model {
           features,
           renderFormat: exportFormat,
           streamsCallback: ps => console.log('Export', JSON.stringify(ps)),
-        })({now: true});
+        })({ now: true });
       }
-      
+
       const outFileURL = URL.createObjectURL(output.outFile);
       this.mutate(s => {
         s.exporting = false;
@@ -310,7 +310,7 @@ export class Model {
     if (this.state.params.sources.length == 1) {
       const content = this.state.params.sources[0].content;
       const contentBytes = new TextEncoder().encode(content);
-      const blob = new Blob([contentBytes], {type: 'text/plain'});
+      const blob = new Blob([contentBytes], { type: 'text/plain' });
       const file = new File([blob], this.state.params.activePath.split('/').pop()!);
       downloadUrl(URL.createObjectURL(file), file.name);
     } else {
@@ -322,14 +322,14 @@ export class Model {
         }
         zip.file(path, await fetchSource(this.fs, source));
       }
-      zip.generateAsync({type: 'blob'}).then(blob => {
+      zip.generateAsync({ type: 'blob' }).then(blob => {
         const file = new File([blob], 'project.zip');
         downloadUrl(URL.createObjectURL(file), file.name);
       });
     }
   }
 
-  async render({isPreview, mountArchives, now, retryInOtherDim}: {isPreview: boolean, mountArchives?: boolean, now: boolean, retryInOtherDim?: boolean}) {
+  async render({ isPreview, mountArchives, now, retryInOtherDim }: { isPreview: boolean, mountArchives?: boolean, now: boolean, retryInOtherDim?: boolean }) {
     // console.log(JSON.stringify(this.state, null, 2));
     mountArchives ??= true;
     retryInOtherDim ??= true;
@@ -359,7 +359,7 @@ export class Model {
       const resourcePath = activePath;
       const loaderPath = '/load-resource.scad';
       is2D = is2DFormatExtension(extension);
-      
+
       mountArchives = false;
       activePath = loaderPath;
       sources = [
@@ -382,7 +382,7 @@ export class Model {
       streamsCallback: this.rawStreamsCallback.bind(this)
     };
     try {
-      let output = await render(renderArgs)({now});
+      let output = await render(renderArgs)({ now });
       let displayFile = output.outFile;
       if (output.outFile.name.endsWith('.svg') || output.outFile.name.endsWith('.dxf')) {
         is2D = true;
@@ -405,7 +405,7 @@ export class Model {
           isPreview: false,
           renderFormat: 'off',
           streamsCallback: this.rawStreamsCallback.bind(this)
-        })({now});
+        })({ now });
         displayFile = extrudedOutput.outFile;
       } else {
         is2D = false;
@@ -473,7 +473,7 @@ export class Model {
       }
       if (is2D === false || is3D === false) {//} || isMixed !== undefined) {
         this.mutate(s => s.is2D = !(is2D === false));
-        this.render({isPreview, now: true, retryInOtherDim: false});
+        this.render({ isPreview, now: true, retryInOtherDim: false });
         return;
       }
     }
